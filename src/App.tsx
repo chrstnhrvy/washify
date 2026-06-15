@@ -1,32 +1,60 @@
-import { lazy, Suspense, useCallback } from "react";
-import Navbar from "./components/layout/Navbar";
-import Footer from "./components/layout/Footer";
-import LandingPage from "./features/landing/LandingPage";
+import { lazy, Suspense } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./features/auth/AuthProvider";
+import PublicSite from "./app/PublicSite";
+import ProtectedRoute from "./app/ProtectedRoute";
+import Spinner from "./components/ui/Spinner";
 
-// Chat widget is below the fold and pulls in the n8n client — load it lazily
-// so it stays out of the initial bundle.
-const ChatWidget = lazy(() => import("./features/faq-chat/ChatWidget"));
+// The authed workspace is its own bundle, loaded only after sign-in.
+const AppLayout = lazy(() => import("./app/AppLayout"));
+const OrdersPage = lazy(() => import("./features/orders/OrdersPage"));
+const DashboardPage = lazy(() => import("./features/dashboard/DashboardPage"));
+const SettingsPage = lazy(() => import("./features/settings/SettingsPage"));
 
 export default function App() {
-  // Placeholder for Supabase Google OAuth (wired in src/features/auth, phase 2).
-  const handleSignIn = useCallback(() => {
-    alert("Google sign-in is coming in the next build phase.");
-  }, []);
-
   return (
-    <>
-      <a
-        href="#features"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-white"
-      >
-        Skip to content
-      </a>
-      <Navbar onSignIn={handleSignIn} />
-      <LandingPage onSignIn={handleSignIn} />
-      <Footer />
-      <Suspense fallback={null}>
-        <ChatWidget />
-      </Suspense>
-    </>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<PublicSite />} />
+          <Route
+            path="/app"
+            element={
+              <ProtectedRoute>
+                <Suspense fallback={<Spinner fullPage />}>
+                  <AppLayout />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          >
+            <Route
+              index
+              element={
+                <Suspense fallback={<Spinner />}>
+                  <OrdersPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="dashboard"
+              element={
+                <Suspense fallback={<Spinner />}>
+                  <DashboardPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="settings"
+              element={
+                <Suspense fallback={<Spinner />}>
+                  <SettingsPage />
+                </Suspense>
+              }
+            />
+          </Route>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
