@@ -1,0 +1,137 @@
+{
+  "name": "washify-sms",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "laundry-done",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f8c32184-e074-4964-944c-67c1838050e0",
+      "name": "Webhook",
+      "webhookId": "507c6287-7d52-4469-a61e-fe1266cdaa18"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "111c20bd-2dc7-473b-9aab-8a2104e3e551",
+              "name": "message",
+              "value": "={{ $json.body.message }}",
+              "type": "string"
+            },
+            {
+              "id": "986c9f1b-5afb-4892-a4c5-54f8186bcb5b",
+              "name": "recipient",
+              "value": "={{ '+63' + $json.body.phone.replace(/\\D/g, '').replace(/^0/, '').replace(/^63/, '') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "1a6ab62e-512d-4fcc-81ad-3d3b9c117485",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://smsapiph.onrender.com/api/v1/send/sms",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n\"x-api-key\": \"sk-2b10kjegqhq7y4xwhpc1kf1auofyo3wq\",\n\"Content-Type\": \"application/json\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"recipient\": \"{{ $json.recipient }}\",\n  \"message\": \"{{ $json.message }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "50d59e63-ba52-4b01-86a5-0746f88528de",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n   \"status\": \"sent\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        624,
+        0
+      ],
+      "id": "210bb873-8af9-413a-b8a7-70145062630d",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "1ff5f505-c224-47a4-af78-138c9fc58a75",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "80be746b211140bbf0357ea70acec6b5b779be1b7e8cb07f9c8e07afca50513d"
+  },
+  "nodeGroups": [],
+  "id": "FdSJnuzZ3SNeypnk",
+  "tags": []
+}
