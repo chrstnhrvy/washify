@@ -1,15 +1,17 @@
 import { Inbox } from "lucide-react";
 import OrderRow from "./OrderRow";
 import type { Order, OrderStatus } from "./types";
+import type { PricingMode } from "../settings/useShop";
 
 type OrderListProps = {
   orders: Order[];
+  mode: PricingMode;
   onStatus: (id: string, status: OrderStatus) => void;
   onTogglePaid: (id: string, paid: boolean) => void;
   onText: (order: Order) => void;
 };
 
-export default function OrderList({ orders, onStatus, onTogglePaid, onText }: OrderListProps) {
+export default function OrderList({ orders, mode, onStatus, onTogglePaid, onText }: OrderListProps) {
   if (orders.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-slate-300 bg-surface p-10 text-center">
@@ -28,6 +30,7 @@ export default function OrderList({ orders, onStatus, onTogglePaid, onText }: Or
         <OrderRow
           key={order.id}
           order={order}
+          mode={mode}
           onStatus={onStatus}
           onTogglePaid={onTogglePaid}
           onText={onText}

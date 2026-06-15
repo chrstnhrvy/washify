@@ -12,7 +12,7 @@ export type NewOrder = {
  * Loads and mutates the signed-in shop's orders. Reads are scoped automatically
  * by RLS (shop_id = auth.uid()); writes pass shop_id explicitly.
  */
-export function useOrders(shopId: string, pricePerLoad: number) {
+export function useOrders(shopId: string, unitPrice: number) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -50,7 +50,7 @@ export function useOrders(shopId: string, pricePerLoad: number) {
           customer_name: input.customer_name,
           phone: input.phone,
           num_loads: input.num_loads,
-          amount_due: input.num_loads * pricePerLoad,
+          amount_due: input.num_loads * unitPrice,
         })
         .select()
         .single();
@@ -58,7 +58,7 @@ export function useOrders(shopId: string, pricePerLoad: number) {
       if (error) throw new Error(error.message);
       setOrders((prev) => [data as Order, ...prev]);
     },
-    [shopId, pricePerLoad],
+    [shopId, unitPrice],
   );
 
   const setStatus = useCallback(

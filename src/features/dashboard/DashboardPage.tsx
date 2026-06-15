@@ -4,6 +4,7 @@ import { Coins, Shirt, Receipt, Download, Loader2 } from "lucide-react";
 import type { AppOutletContext } from "../../app/app-context";
 import Spinner from "../../components/ui/Spinner";
 import { useOrders } from "../orders/useOrders";
+import { activeUnitPrice, unitLabel } from "../settings/pricing";
 import StatCard from "./StatCard";
 import BarChart from "./BarChart";
 import { exportOrdersToXlsx } from "./exportXlsx";
@@ -13,7 +14,8 @@ const peso = (n: number) => `₱${n.toLocaleString()}`;
 
 export default function DashboardPage() {
   const { shop } = useOutletContext<AppOutletContext>();
-  const { orders, loading } = useOrders(shop.id, Number(shop.price_per_load));
+  const { orders, loading } = useOrders(shop.id, activeUnitPrice(shop));
+  const qtyLabel = unitLabel(shop.pricing_mode);
   const [period, setPeriod] = useState<Period>("Week");
   const [exporting, setExporting] = useState(false);
 
@@ -74,7 +76,7 @@ export default function DashboardPage() {
 
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard icon={Coins} label="Revenue" value={peso(revenue)} />
-        <StatCard icon={Shirt} label="Loads" value={String(loads)} />
+        <StatCard icon={Shirt} label={qtyLabel} value={String(loads)} />
         <StatCard icon={Receipt} label="Orders" value={String(inPeriod.length)} />
       </div>
 
@@ -91,12 +93,12 @@ export default function DashboardPage() {
           </div>
         </div>
         <div className="rounded-2xl border border-slate-200 bg-surface p-5 shadow-card">
-          <h2 className="font-bold text-ink">Loads per day</h2>
+          <h2 className="font-bold text-ink">{qtyLabel} per day</h2>
           <div className="mt-4">
             <BarChart
               data={daily.map((d) => ({ label: d.label, value: d.loads }))}
               colorClass="bg-accent"
-              ariaLabel={`Loads per day for the selected ${period.toLowerCase()}`}
+              ariaLabel={`${qtyLabel} per day for the selected ${period.toLowerCase()}`}
             />
           </div>
         </div>

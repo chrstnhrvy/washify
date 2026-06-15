@@ -7,7 +7,7 @@ type Message = { role: "user" | "bot"; text: string };
 
 const GREETING: Message = {
   role: "bot",
-  text: "Hi! Ask me about hours, pricing, services, or turnaround. 🫧",
+  text: "Hi! Ask me anything about Washify.",
 };
 
 export default function ChatWidget() {

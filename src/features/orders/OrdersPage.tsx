@@ -7,13 +7,14 @@ import OrderForm from "./OrderForm";
 import OrderList from "./OrderList";
 import TextCustomerModal from "./TextCustomerModal";
 import { useOrders } from "./useOrders";
+import { activeUnitPrice } from "../settings/pricing";
 import { ORDER_STATUSES, type Order, type OrderStatus } from "./types";
 
 export default function OrdersPage() {
   const { shop } = useOutletContext<AppOutletContext>();
-  const pricePerLoad = Number(shop.price_per_load);
+  const unitPrice = activeUnitPrice(shop);
   const { orders, loading, error, addOrder, setStatus, togglePaid, markTexted } =
-    useOrders(shop.id, pricePerLoad);
+    useOrders(shop.id, unitPrice);
 
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "All">("All");
@@ -36,7 +37,7 @@ export default function OrdersPage() {
         <p className="text-muted">Add drop-offs and move them through to pickup.</p>
       </div>
 
-      <OrderForm pricePerLoad={pricePerLoad} onAdd={addOrder} />
+      <OrderForm mode={shop.pricing_mode} unitPrice={unitPrice} onAdd={addOrder} />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative w-full sm:max-w-xs">
@@ -88,6 +89,7 @@ export default function OrdersPage() {
       ) : (
         <OrderList
           orders={filtered}
+          mode={shop.pricing_mode}
           onStatus={setStatus}
           onTogglePaid={togglePaid}
           onText={setTexting}

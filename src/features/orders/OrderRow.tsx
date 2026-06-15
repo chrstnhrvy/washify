@@ -1,15 +1,18 @@
 import { Check, Circle, MessageSquareText } from "lucide-react";
 import StatusControl from "./StatusControl";
 import type { Order, OrderStatus } from "./types";
+import type { PricingMode } from "../settings/useShop";
+import { unitNoun } from "../settings/pricing";
 
 type OrderRowProps = {
   order: Order;
+  mode: PricingMode;
   onStatus: (id: string, status: OrderStatus) => void;
   onTogglePaid: (id: string, paid: boolean) => void;
   onText: (order: Order) => void;
 };
 
-export default function OrderRow({ order, onStatus, onTogglePaid, onText }: OrderRowProps) {
+export default function OrderRow({ order, mode, onStatus, onTogglePaid, onText }: OrderRowProps) {
   return (
     <li className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-surface p-5 shadow-card sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0">
@@ -18,7 +21,7 @@ export default function OrderRow({ order, onStatus, onTogglePaid, onText }: Orde
           {order.order_code} · {order.phone}
         </p>
         <p className="mt-1 text-sm text-muted">
-          {order.num_loads} {order.num_loads === 1 ? "load" : "loads"} ·{" "}
+          {order.num_loads} {unitNoun(mode, order.num_loads)} ·{" "}
           <span className="font-semibold tabular-nums text-ink">
             ₱{Number(order.amount_due).toLocaleString()}
           </span>{" "}

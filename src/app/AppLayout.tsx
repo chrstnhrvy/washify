@@ -5,6 +5,7 @@ import Spinner from "../components/ui/Spinner";
 import { useAuth } from "../features/auth/useAuth";
 import { signOut } from "../features/auth/actions";
 import { useShop } from "../features/settings/useShop";
+import Onboarding from "../features/settings/Onboarding";
 import type { AppOutletContext } from "./app-context";
 
 const NAV = [
@@ -53,16 +54,18 @@ export default function AppLayout() {
             </button>
           </div>
         </div>
-        <nav
-          aria-label="Workspace"
-          className="mx-auto flex max-w-5xl gap-6 px-4 sm:px-6"
-        >
-          {NAV.map((item) => (
-            <NavLink key={item.to} to={item.to} end={item.end} className={navClass}>
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
+        {shop?.onboarded && (
+          <nav
+            aria-label="Workspace"
+            className="mx-auto flex max-w-5xl gap-6 px-4 sm:px-6"
+          >
+            {NAV.map((item) => (
+              <NavLink key={item.to} to={item.to} end={item.end} className={navClass}>
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
+        )}
       </header>
 
       <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
@@ -74,6 +77,8 @@ export default function AppLayout() {
             <code className="font-mono">supabase/provision_shop.sql</code> in the
             Supabase SQL editor, then sign out and back in.
           </div>
+        ) : !shop.onboarded ? (
+          <Onboarding shop={shop} onDone={refetch} />
         ) : (
           <Outlet
             context={{ shop, refetchShop: refetch } satisfies AppOutletContext}

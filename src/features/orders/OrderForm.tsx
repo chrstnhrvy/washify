@@ -1,35 +1,38 @@
 import { useId, useState } from "react";
 import { Plus, Loader2 } from "lucide-react";
 import type { NewOrder } from "./useOrders";
+import type { PricingMode } from "../settings/useShop";
+import { unitLabel, unitStep } from "../settings/pricing";
 
 type OrderFormProps = {
-  pricePerLoad: number;
+  mode: PricingMode;
+  unitPrice: number;
   onAdd: (input: NewOrder) => Promise<void>;
 };
 
-export default function OrderForm({ pricePerLoad, onAdd }: OrderFormProps) {
+export default function OrderForm({ mode, unitPrice, onAdd }: OrderFormProps) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [loads, setLoads] = useState(1);
+  const [qty, setQty] = useState(1);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const baseId = useId();
 
-  const amount = Math.max(loads, 0) * pricePerLoad;
+  const amount = Math.max(qty, 0) * unitPrice;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim() || !phone.trim() || loads < 1) {
-      setError("Enter a name, phone, and at least one load.");
+    if (!name.trim() || !phone.trim() || qty <= 0) {
+      setError(`Enter a name, phone, and ${mode === "per_kg" ? "weight" : "loads"}.`);
       return;
     }
     setError(null);
     setSaving(true);
     try {
-      await onAdd({ customer_name: name.trim(), phone: phone.trim(), num_loads: loads });
+      await onAdd({ customer_name: name.trim(), phone: phone.trim(), num_loads: qty });
       setName("");
       setPhone("");
-      setLoads(1);
+      setQty(1);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not save the order.");
     } finally {
@@ -74,15 +77,16 @@ export default function OrderForm({ pricePerLoad, onAdd }: OrderFormProps) {
           />
         </div>
         <div>
-          <label htmlFor={`${baseId}-loads`} className="text-sm font-semibold text-ink">
-            Loads
+          <label htmlFor={`${baseId}-qty`} className="text-sm font-semibold text-ink">
+            {unitLabel(mode)}
           </label>
           <input
-            id={`${baseId}-loads`}
+            id={`${baseId}-qty`}
             type="number"
-            min={1}
-            value={loads}
-            onChange={(e) => setLoads(Number(e.target.value))}
+            min={unitStep(mode)}
+            step={unitStep(mode)}
+            value={qty}
+            onChange={(e) => setQty(Number(e.target.value))}
             className={`mt-1 ${field}`}
           />
         </div>

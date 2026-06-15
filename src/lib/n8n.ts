@@ -16,7 +16,14 @@ async function postWebhook<T>(path: string, body: unknown): Promise<T> {
   if (!res.ok) {
     throw new Error(`n8n "${path}" responded ${res.status}`);
   }
-  return (await res.json()) as T;
+  // Some workflows respond with an empty body; don't crash on JSON.parse("").
+  const text = await res.text();
+  if (!text) return {} as T;
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    throw new Error(`n8n "${path}" returned a non-JSON response`);
+  }
 }
 
 /**
