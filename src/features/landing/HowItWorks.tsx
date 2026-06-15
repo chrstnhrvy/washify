@@ -1,3 +1,5 @@
+import { useInView } from "../../hooks/useInView";
+
 const STEPS = [
   {
     n: 1,
@@ -7,7 +9,7 @@ const STEPS = [
   {
     n: 2,
     title: "Add orders",
-    body: "Enter the customer, phone, and number of loads — the amount due is calculated for you.",
+    body: "Enter the customer, phone, and number of loads, and the amount due is calculated for you.",
   },
   {
     n: 3,
@@ -17,6 +19,8 @@ const STEPS = [
 ];
 
 export default function HowItWorks() {
+  const { ref, inView } = useInView<HTMLOListElement>();
+
   return (
     <section
       id="how-it-works"
@@ -30,9 +34,13 @@ export default function HowItWorks() {
         >
           How it works
         </h2>
-        <ol className="mt-10 grid gap-6 sm:grid-cols-3">
-          {STEPS.map((s) => (
-            <li key={s.n} className="relative">
+        <ol ref={ref} className="mt-10 grid gap-6 sm:grid-cols-3">
+          {STEPS.map((s, i) => (
+            <li
+              key={s.n}
+              className={`reveal ${inView ? "reveal-in" : ""} relative`}
+              style={{ transitionDelay: `${i * 120}ms` }}
+            >
               <span className="grid h-12 w-12 place-items-center rounded-2xl bg-primary text-lg font-extrabold text-white tabular-nums">
                 {s.n}
               </span>

@@ -1,6 +1,7 @@
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { MessageCircle, X, Send, Loader2 } from "lucide-react";
 import { askFaq } from "../../lib/n8n";
+import { OPEN_CHAT_EVENT } from "./events";
 
 type Message = { role: "user" | "bot"; text: string };
 
@@ -16,6 +17,12 @@ export default function ChatWidget() {
   const [sending, setSending] = useState(false);
   const logRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
+
+  useEffect(() => {
+    const open = () => setOpen(true);
+    window.addEventListener(OPEN_CHAT_EVENT, open);
+    return () => window.removeEventListener(OPEN_CHAT_EVENT, open);
+  }, []);
 
   function scrollToEnd() {
     requestAnimationFrame(() => {
@@ -41,7 +48,7 @@ export default function ChatWidget() {
         ...prev,
         {
           role: "bot",
-          text: "Sorry — I couldn’t reach the assistant. Please try again, or contact the shop directly.",
+          text: "Sorry, I couldn’t reach the assistant. Please try again, or contact the shop directly.",
         },
       ]);
     } finally {

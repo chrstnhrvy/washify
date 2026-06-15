@@ -5,6 +5,7 @@ import {
   Bot,
   type LucideIcon,
 } from "lucide-react";
+import { useInView } from "../../hooks/useInView";
 
 type Feature = {
   icon: LucideIcon;
@@ -21,21 +22,23 @@ const FEATURES: Feature[] = [
   {
     icon: MessageSquareText,
     title: "Customer SMS",
-    body: "One tap texts the customer the moment their laundry is done — sent through an n8n automation.",
+    body: "One tap texts the customer the moment their laundry is done, sent automatically through an n8n workflow.",
   },
   {
     icon: LineChart,
     title: "Sales & Excel export",
-    body: "See revenue by day, week, or month, then download the period as an .xlsx with one click.",
+    body: "See revenue by day, week, or month, then download any period as an .xlsx with one click.",
   },
   {
     icon: Bot,
     title: "FAQ chatbot",
-    body: "A public AI assistant answers hours, pricing, and turnaround — grounded only in your shop’s FAQ.",
+    body: "A public AI assistant answers hours, pricing, and turnaround, grounded only in your shop’s FAQ.",
   },
 ];
 
 export default function Features() {
+  const { ref, inView } = useInView<HTMLUListElement>();
+
   return (
     <section
       id="features"
@@ -50,15 +53,19 @@ export default function Features() {
           Everything a busy shop needs
         </h2>
         <p className="mt-3 text-lg text-muted">
-          Built around the day-to-day of running a laundromat — fast to use, and
+          Built around the day-to-day of running a laundromat. Fast to use, and
           friendly for your customers.
         </p>
       </div>
-      <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {FEATURES.map(({ icon: Icon, title, body }) => (
+      <ul
+        ref={ref}
+        className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4"
+      >
+        {FEATURES.map(({ icon: Icon, title, body }, i) => (
           <li
             key={title}
-            className="rounded-2xl border border-slate-200 bg-surface p-6 shadow-card transition-transform duration-200 hover:-translate-y-1 motion-reduce:transform-none motion-reduce:transition-none"
+            className={`reveal ${inView ? "reveal-in" : ""} rounded-2xl border border-slate-200 bg-surface p-6 shadow-card hover:-translate-y-1 motion-reduce:transform-none`}
+            style={{ transitionDelay: `${i * 80}ms` }}
           >
             <span className="grid h-11 w-11 place-items-center rounded-xl bg-primary/10 text-primary-dark">
               <Icon size={22} aria-hidden="true" />
