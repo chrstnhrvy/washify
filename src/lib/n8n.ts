@@ -35,6 +35,15 @@ export function sendSms(phone: string, message: string) {
   return postWebhook<{ status: string }>("laundry-done", { phone, message });
 }
 
+/**
+ * Notify a customer via the shop's Facebook Page (Messenger).
+ * `psid` is the customer's Page-Scoped ID, captured when they message the Page.
+ * Only delivers within Messenger's 24-hour window; `message` may be up to 2000 chars.
+ */
+export function sendMessenger(psid: string, message: string) {
+  return postWebhook<{ status: string }>("messenger-send", { psid, message });
+}
+
 /** Ask the per-shop RAG FAQ chatbot a question. */
 export function askFaq(question: string) {
   return postWebhook<{ answer: string }>("faq-chat", { question });

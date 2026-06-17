@@ -11,6 +11,7 @@ export type Shop = {
   price_per_load: number;
   price_per_kg: number;
   max_kg: number;
+  messenger_page_id: string | null;
   onboarded: boolean;
 };
 
@@ -25,7 +26,7 @@ export function useShop(userId: string | undefined) {
     const { data } = await supabase
       .from("shops")
       .select(
-        "id, shop_name, owner_name, pricing_mode, price_per_load, price_per_kg, max_kg, onboarded",
+        "id, shop_name, owner_name, pricing_mode, price_per_load, price_per_kg, max_kg, messenger_page_id, onboarded",
       )
       .eq("id", userId)
       .maybeSingle();

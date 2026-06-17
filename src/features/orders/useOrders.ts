@@ -99,5 +99,28 @@ export function useOrders(shopId: string, unitPrice: number) {
     if (error) void refresh();
   }, [refresh]);
 
-  return { orders, loading, error, addOrder, setStatus, togglePaid, markTexted };
+  const setMessengerPsid = useCallback(
+    async (id: string, psid: string) => {
+      setOrders((prev) =>
+        prev.map((o) => (o.id === id ? { ...o, messenger_psid: psid } : o)),
+      );
+      const { error } = await supabase
+        .from("orders")
+        .update({ messenger_psid: psid })
+        .eq("id", id);
+      if (error) void refresh();
+    },
+    [refresh],
+  );
+
+  return {
+    orders,
+    loading,
+    error,
+    addOrder,
+    setStatus,
+    togglePaid,
+    markTexted,
+    setMessengerPsid,
+  };
 }

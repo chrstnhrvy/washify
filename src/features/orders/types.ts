@@ -19,6 +19,7 @@ export type Order = {
   status: OrderStatus;
   paid: boolean;
   texted_at: string | null;
+  messenger_psid: string | null;
   created_at: string;
 };
 

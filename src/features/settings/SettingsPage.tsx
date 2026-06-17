@@ -16,6 +16,7 @@ export default function SettingsPage() {
       ? Number(shop.price_per_kg)
       : Number(shop.price_per_load),
   );
+  const [pageId, setPageId] = useState(shop.messenger_page_id ?? "");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,6 +36,7 @@ export default function SettingsPage() {
     const update: Record<string, unknown> = {
       shop_name: name.trim(),
       pricing_mode: mode,
+      messenger_page_id: pageId.trim() || null,
     };
     if (mode === "per_kg") update.price_per_kg = price;
     else update.price_per_load = price;
@@ -99,6 +101,26 @@ export default function SettingsPage() {
             }}
             className={`mt-1 ${field}`}
           />
+        </div>
+
+        <div>
+          <label htmlFor={`${baseId}-page`} className="text-sm font-semibold text-ink">
+            Facebook Page ID (for Messenger)
+          </label>
+          <input
+            id={`${baseId}-page`}
+            value={pageId}
+            onChange={(e) => {
+              setPageId(e.target.value);
+              setSaved(false);
+            }}
+            placeholder="e.g. 1183045104892705"
+            className={`mt-1 ${field}`}
+          />
+          <p className="mt-1 text-xs text-muted">
+            Optional. Enables the Messenger connect QR on orders. Leave blank if
+            you only use SMS.
+          </p>
         </div>
 
         {error && (

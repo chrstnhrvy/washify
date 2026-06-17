@@ -1,0 +1,176 @@
+{
+  "name": "n8n-fb-message",
+  "nodes": [
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.query['hub.challenge'] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        208,
+        0
+      ],
+      "id": "9e0c9f17-46b8-4e61-b46a-543d665d7f06",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "path": "messenger",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ad58d597-8409-416c-bf43-b5949b163d2c",
+      "name": "Verify",
+      "webhookId": "9ffc2543-267b-4d15-a287-dba9f307a2c4"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "messenger",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        176
+      ],
+      "id": "ee6e65cc-97e8-4d0d-9b96-99f7e427dd37",
+      "name": "Incoming",
+      "webhookId": "94b59c4e-1825-4fdb-aef4-f2cf8a994b8e"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d578c98b-293b-414a-b61a-33944d8e8cca",
+              "name": "psid",
+              "value": "={{ $json.body.entry[0].messaging[0].sender.id }}",
+              "type": "string"
+            },
+            {
+              "id": "95aa2fa3-8da5-49aa-ad17-a1a98ab700e8",
+              "name": "text",
+              "value": "={{ $json.body.entry[0].messaging[0].message.text }}",
+              "type": "string"
+            },
+            {
+              "id": "b2c1d0e9-1111-2222-3333-444455556666",
+              "name": "code",
+              "value": "={{ ($json.body.entry[0].messaging[0].message?.text || '').trim().toUpperCase() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        176
+      ],
+      "id": "2fb8a3df-ed87-4c68-aa1c-74ba7d5fc129",
+      "name": "Extract PSID"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "orders",
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "order_code",
+              "condition": "eq",
+              "keyValue": "={{ $json.code }}"
+            }
+          ]
+        },
+        "dataToSend": "defineBelow",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "messenger_psid",
+              "fieldValue": "={{ $json.psid }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        416,
+        176
+      ],
+      "id": "c7d8e9f0-aaaa-bbbb-cccc-ddddeeeeffff",
+      "name": "Link to Order",
+      "credentials": {
+        "supabaseApi": {
+          "id": "O52LM1R2kuP56fHa",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Verify": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Incoming": {
+      "main": [
+        [
+          {
+            "node": "Extract PSID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract PSID": {
+      "main": [
+        [
+          {
+            "node": "Link to Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "ef99adae-d4a1-4230-b6b1-2698b0acaa32",
+  "meta": {
+    "instanceId": "80be746b211140bbf0357ea70acec6b5b779be1b7e8cb07f9c8e07afca50513d"
+  },
+  "nodeGroups": [],
+  "id": "41B4s4pxiCKsiGn8",
+  "tags": []
+}

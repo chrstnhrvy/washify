@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <radialGradient id="shine" cx="0.3" cy="0.25" r="0.8">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#F8FAFC" />
+  <g transform="translate(170 230)">
+    <circle cx="80" cy="80" r="80" fill="#06B6D4" />
+    <circle cx="80" cy="80" r="80" fill="url(#shine)" />
+    <circle cx="53" cy="53" r="19" fill="#FFFFFF" opacity="0.9" />
+    <circle cx="107" cy="101" r="11" fill="#FFFFFF" opacity="0.55" />
+  </g>
+  <text x="370" y="300" font-family="'Segoe UI', Arial, sans-serif" font-size="120" font-weight="800" fill="#0F172A">Washify</text>
+  <text x="372" y="372" font-family="'Segoe UI', Arial, sans-serif" font-size="40" font-weight="500" fill="#64748B">Run your laundry shop, the smart way.</text>
+</svg>

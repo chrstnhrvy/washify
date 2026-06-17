@@ -13,8 +13,16 @@ import { ORDER_STATUSES, type Order, type OrderStatus } from "./types";
 export default function OrdersPage() {
   const { shop } = useOutletContext<AppOutletContext>();
   const unitPrice = activeUnitPrice(shop);
-  const { orders, loading, error, addOrder, setStatus, togglePaid, markTexted } =
-    useOrders(shop.id, unitPrice);
+  const {
+    orders,
+    loading,
+    error,
+    addOrder,
+    setStatus,
+    togglePaid,
+    markTexted,
+    setMessengerPsid,
+  } = useOrders(shop.id, unitPrice);
 
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "All">("All");
@@ -99,8 +107,10 @@ export default function OrdersPage() {
       {texting && (
         <TextCustomerModal
           order={texting}
+          pageId={shop.messenger_page_id}
           onClose={() => setTexting(null)}
           onSent={() => markTexted(texting.id)}
+          onSavePsid={setMessengerPsid}
         />
       )}
     </div>

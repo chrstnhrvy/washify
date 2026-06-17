@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="shine" cx="0.3" cy="0.25" r="0.8">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <circle cx="256" cy="256" r="240" fill="#06B6D4" />
+  <circle cx="256" cy="256" r="240" fill="url(#shine)" />
+  <circle cx="176" cy="176" r="56" fill="#FFFFFF" opacity="0.9" />
+  <circle cx="320" cy="304" r="32" fill="#FFFFFF" opacity="0.55" />
+</svg>

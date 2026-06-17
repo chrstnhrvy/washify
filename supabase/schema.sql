@@ -10,6 +10,7 @@ create table if not exists public.shops (
   price_per_load numeric not null default 220,
   price_per_kg numeric not null default 25,
   max_kg int not null default 8,
+  messenger_page_id text,
   onboarded boolean not null default false,
   created_at timestamptz not null default now()
 );
@@ -26,6 +27,7 @@ create table if not exists public.orders (
   status text not null default 'Received',
   paid boolean not null default false,
   texted_at timestamptz,
+  messenger_psid text,
   logged_by text,
   created_at timestamptz not null default now()
 );
