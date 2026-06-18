@@ -9,6 +9,7 @@ import Spinner from "./components/ui/Spinner";
 const AppLayout = lazy(() => import("./app/AppLayout"));
 const OrdersPage = lazy(() => import("./features/orders/OrdersPage"));
 const DashboardPage = lazy(() => import("./features/dashboard/DashboardPage"));
+const CustomersPage = lazy(() => import("./features/customers/CustomersPage"));
 const SettingsPage = lazy(() => import("./features/settings/SettingsPage"));
 
 export default function App() {
@@ -40,6 +41,14 @@ export default function App() {
               element={
                 <Suspense fallback={<Spinner />}>
                   <DashboardPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="customers"
+              element={
+                <Suspense fallback={<Spinner />}>
+                  <CustomersPage />
                 </Suspense>
               }
             />

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useOutletContext } from "react-router-dom";
-import { Coins, Shirt, Receipt, Download, Loader2 } from "lucide-react";
+import { Coins, Shirt, Receipt, Download, Loader2, Wallet, TrendingUp, Repeat } from "lucide-react";
 import type { AppOutletContext } from "../../app/app-context";
 import Spinner from "../../components/ui/Spinner";
 import { useOrders } from "../orders/useOrders";
@@ -8,9 +8,16 @@ import { activeUnitPrice, unitLabel } from "../settings/pricing";
 import StatCard from "./StatCard";
 import BarChart from "./BarChart";
 import { exportOrdersToXlsx } from "./exportXlsx";
-import { PERIODS, filterByPeriod, groupByDay, type Period } from "./period";
+import {
+  PERIODS,
+  filterByPeriod,
+  filterPreviousPeriod,
+  groupByDay,
+  repeatCustomerRate,
+  type Period,
+} from "./period";
 
-const peso = (n: number) => `₱${n.toLocaleString()}`;
+const peso = (n: number) => `₱${Math.round(n).toLocaleString()}`;
 
 export default function DashboardPage() {
   const { shop } = useOutletContext<AppOutletContext>();
@@ -23,6 +30,18 @@ export default function DashboardPage() {
   const revenue = inPeriod.reduce((sum, o) => sum + Number(o.amount_due), 0);
   const loads = inPeriod.reduce((sum, o) => sum + o.num_loads, 0);
   const daily = groupByDay(inPeriod, period);
+
+  // Derived metrics
+  const prevRevenue = filterPreviousPeriod(orders, period).reduce(
+    (sum, o) => sum + Number(o.amount_due),
+    0,
+  );
+  const delta = prevRevenue > 0 ? Math.round(((revenue - prevRevenue) / prevRevenue) * 100) : null;
+  const outstanding = orders
+    .filter((o) => !o.paid)
+    .reduce((sum, o) => sum + Number(o.amount_due), 0);
+  const avgOrder = inPeriod.length ? revenue / inPeriod.length : 0;
+  const repeatRate = repeatCustomerRate(inPeriod, orders);
 
   async function handleExport() {
     setExporting(true);
@@ -75,9 +94,18 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard icon={Coins} label="Revenue" value={peso(revenue)} />
+        <StatCard
+          icon={Coins}
+          label="Revenue"
+          value={peso(revenue)}
+          sub={delta === null ? undefined : `${delta >= 0 ? "+" : ""}${delta}% vs last ${period.toLowerCase()}`}
+          subTone={delta === null ? "muted" : delta >= 0 ? "up" : "down"}
+        />
         <StatCard icon={Shirt} label={qtyLabel} value={String(loads)} />
         <StatCard icon={Receipt} label="Orders" value={String(inPeriod.length)} />
+        <StatCard icon={Wallet} label="Outstanding (unpaid)" value={peso(outstanding)} />
+        <StatCard icon={TrendingUp} label="Avg order value" value={peso(avgOrder)} />
+        <StatCard icon={Repeat} label="Repeat customers" value={`${repeatRate}%`} />
       </div>
 
       <div className="grid gap-5 lg:grid-cols-2">

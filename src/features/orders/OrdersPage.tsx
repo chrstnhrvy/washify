@@ -6,8 +6,11 @@ import Spinner from "../../components/ui/Spinner";
 import OrderForm from "./OrderForm";
 import OrderList from "./OrderList";
 import TextCustomerModal from "./TextCustomerModal";
+import EditOrderModal from "./EditOrderModal";
+import ReceiptModal from "./ReceiptModal";
 import { useOrders } from "./useOrders";
-import { activeUnitPrice } from "../settings/pricing";
+import { useCustomers } from "../customers/useCustomers";
+import { activeUnitPrice, unitNoun } from "../settings/pricing";
 import { ORDER_STATUSES, type Order, type OrderStatus } from "./types";
 
 export default function OrdersPage() {
@@ -22,11 +25,16 @@ export default function OrdersPage() {
     togglePaid,
     markTexted,
     setMessengerPsid,
+    updateOrder,
+    deleteOrder,
   } = useOrders(shop.id, unitPrice);
+  const { customers } = useCustomers();
 
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "All">("All");
   const [texting, setTexting] = useState<Order | null>(null);
+  const [editing, setEditing] = useState<Order | null>(null);
+  const [receipting, setReceipting] = useState<Order | null>(null);
 
   const q = query.trim().toLowerCase();
   const filtered = orders.filter((o) => {
@@ -38,6 +46,10 @@ export default function OrdersPage() {
     return matchesQuery && matchesStatus;
   });
 
+  function handleDelete(id: string) {
+    if (window.confirm("Delete this order? This can't be undone.")) deleteOrder(id);
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -45,7 +57,12 @@ export default function OrdersPage() {
         <p className="text-muted">Add drop-offs and move them through to pickup.</p>
       </div>
 
-      <OrderForm mode={shop.pricing_mode} unitPrice={unitPrice} onAdd={addOrder} />
+      <OrderForm
+        mode={shop.pricing_mode}
+        unitPrice={unitPrice}
+        customers={customers}
+        onAdd={addOrder}
+      />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative w-full sm:max-w-xs">
@@ -101,6 +118,9 @@ export default function OrdersPage() {
           onStatus={setStatus}
           onTogglePaid={togglePaid}
           onText={setTexting}
+          onEdit={setEditing}
+          onReceipt={setReceipting}
+          onDelete={handleDelete}
         />
       )}
 
@@ -108,9 +128,30 @@ export default function OrdersPage() {
         <TextCustomerModal
           order={texting}
           pageId={shop.messenger_page_id}
+          unit={unitNoun(shop.pricing_mode, texting.num_loads)}
           onClose={() => setTexting(null)}
           onSent={() => markTexted(texting.id)}
           onSavePsid={setMessengerPsid}
+        />
+      )}
+
+      {editing && (
+        <EditOrderModal
+          order={editing}
+          mode={shop.pricing_mode}
+          unitPrice={unitPrice}
+          onClose={() => setEditing(null)}
+          onSave={updateOrder}
+        />
+      )}
+
+      {receipting && (
+        <ReceiptModal
+          order={receipting}
+          shopName={shop.shop_name}
+          pageId={shop.messenger_page_id}
+          mode={shop.pricing_mode}
+          onClose={() => setReceipting(null)}
         />
       )}
     </div>

@@ -11,6 +11,7 @@ import type { AppOutletContext } from "./app-context";
 const NAV = [
   { to: "/app", label: "Orders", end: true },
   { to: "/app/dashboard", label: "Sales", end: false },
+  { to: "/app/customers", label: "Customers", end: false },
   { to: "/app/settings", label: "Settings", end: false },
 ];
 

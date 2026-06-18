@@ -51,3 +51,27 @@ export function groupByDay(orders: Order[], p: Period): DayBucket[] {
 
   return order.map((k) => map.get(k)!);
 }
+
+/** Orders from the window immediately before the current one (same length). */
+export function filterPreviousPeriod(orders: Order[], p: Period): Order[] {
+  const days = periodDays(p);
+  const prevStart = new Date();
+  prevStart.setHours(0, 0, 0, 0);
+  prevStart.setDate(prevStart.getDate() - (2 * days - 1));
+  const curStart = new Date();
+  curStart.setHours(0, 0, 0, 0);
+  curStart.setDate(curStart.getDate() - (days - 1));
+  return orders.filter((o) => {
+    const t = new Date(o.created_at);
+    return t >= prevStart && t < curStart;
+  });
+}
+
+/** Percent of the period's orders from customers (by phone) seen more than once overall. */
+export function repeatCustomerRate(periodOrders: Order[], allOrders: Order[]): number {
+  if (periodOrders.length === 0) return 0;
+  const counts = new Map<string, number>();
+  for (const o of allOrders) counts.set(o.phone, (counts.get(o.phone) ?? 0) + 1);
+  const repeat = periodOrders.filter((o) => (counts.get(o.phone) ?? 0) > 1).length;
+  return Math.round((repeat / periodOrders.length) * 100);
+}

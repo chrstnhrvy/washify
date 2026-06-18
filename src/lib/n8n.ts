@@ -48,3 +48,18 @@ export function sendMessenger(psid: string, message: string) {
 export function askFaq(question: string) {
   return postWebhook<{ answer: string }>("faq-chat", { question });
 }
+
+export type DraftInput = {
+  customerName: string;
+  quantity: number;
+  unit: string;
+  amount: number;
+  paid: boolean;
+  channel: "sms" | "messenger";
+  maxChars: number;
+};
+
+/** Ask Groq (via n8n) to draft a friendly "laundry is ready" message. */
+export function draftMessage(input: DraftInput) {
+  return postWebhook<{ message: string }>("draft-message", input);
+}

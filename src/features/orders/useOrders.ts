@@ -35,6 +35,42 @@ export function useOrders(shopId: string, unitPrice: number) {
     void refresh();
   }, [refresh]);
 
+  // Live updates: refetch when any of this shop's orders change (e.g. an
+  // inbound Messenger link writes a PSID from n8n).
+  useEffect(() => {
+    const channel = supabase
+      .channel(`orders-${shopId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "orders", filter: `shop_id=eq.${shopId}` },
+        () => void refresh(),
+      )
+      .subscribe();
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [shopId, refresh]);
+
+  /** Best-effort: keep the customer directory in sync (matched by phone). */
+  async function upsertCustomer(name: string, phone: string) {
+    const { data } = await supabase
+      .from("customers")
+      .select("id, visit_count")
+      .eq("phone", phone)
+      .order("last_visit", { ascending: false })
+      .limit(1);
+    const today = new Date().toISOString().slice(0, 10);
+    const existing = data?.[0];
+    if (existing) {
+      await supabase
+        .from("customers")
+        .update({ name, visit_count: (existing.visit_count ?? 1) + 1, last_visit: today })
+        .eq("id", existing.id);
+    } else {
+      await supabase.from("customers").insert({ shop_id: shopId, name, phone });
+    }
+  }
+
   const addOrder = useCallback(
     async (input: NewOrder) => {
       const { count } = await supabase
@@ -57,7 +93,9 @@ export function useOrders(shopId: string, unitPrice: number) {
 
       if (error) throw new Error(error.message);
       setOrders((prev) => [data as Order, ...prev]);
+      void upsertCustomer(input.customer_name, input.phone);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [shopId, unitPrice],
   );
 
@@ -113,6 +151,35 @@ export function useOrders(shopId: string, unitPrice: number) {
     [refresh],
   );
 
+  const updateOrder = useCallback(
+    async (id: string, fields: NewOrder) => {
+      const amount = fields.num_loads * unitPrice;
+      setOrders((prev) =>
+        prev.map((o) => (o.id === id ? { ...o, ...fields, amount_due: amount } : o)),
+      );
+      const { error } = await supabase
+        .from("orders")
+        .update({
+          customer_name: fields.customer_name,
+          phone: fields.phone,
+          num_loads: fields.num_loads,
+          amount_due: amount,
+        })
+        .eq("id", id);
+      if (error) void refresh();
+    },
+    [refresh, unitPrice],
+  );
+
+  const deleteOrder = useCallback(
+    async (id: string) => {
+      setOrders((prev) => prev.filter((o) => o.id !== id));
+      const { error } = await supabase.from("orders").delete().eq("id", id);
+      if (error) void refresh();
+    },
+    [refresh],
+  );
+
   return {
     orders,
     loading,
@@ -122,5 +189,7 @@ export function useOrders(shopId: string, unitPrice: number) {
     togglePaid,
     markTexted,
     setMessengerPsid,
+    updateOrder,
+    deleteOrder,
   };
 }

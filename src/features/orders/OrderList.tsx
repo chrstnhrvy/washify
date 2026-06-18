@@ -9,9 +9,21 @@ type OrderListProps = {
   onStatus: (id: string, status: OrderStatus) => void;
   onTogglePaid: (id: string, paid: boolean) => void;
   onText: (order: Order) => void;
+  onEdit: (order: Order) => void;
+  onReceipt: (order: Order) => void;
+  onDelete: (id: string) => void;
 };
 
-export default function OrderList({ orders, mode, onStatus, onTogglePaid, onText }: OrderListProps) {
+export default function OrderList({
+  orders,
+  mode,
+  onStatus,
+  onTogglePaid,
+  onText,
+  onEdit,
+  onReceipt,
+  onDelete,
+}: OrderListProps) {
   if (orders.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-slate-300 bg-surface p-10 text-center">
@@ -34,6 +46,9 @@ export default function OrderList({ orders, mode, onStatus, onTogglePaid, onText
           onStatus={onStatus}
           onTogglePaid={onTogglePaid}
           onText={onText}
+          onEdit={onEdit}
+          onReceipt={onReceipt}
+          onDelete={onDelete}
         />
       ))}
     </ul>

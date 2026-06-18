@@ -7,16 +7,26 @@ import { unitLabel, unitStep } from "../settings/pricing";
 type OrderFormProps = {
   mode: PricingMode;
   unitPrice: number;
+  /** Saved customers, for name auto-complete + phone auto-fill. */
+  customers?: { name: string; phone: string }[];
   onAdd: (input: NewOrder) => Promise<void>;
 };
 
-export default function OrderForm({ mode, unitPrice, onAdd }: OrderFormProps) {
+export default function OrderForm({ mode, unitPrice, customers = [], onAdd }: OrderFormProps) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [qty, setQty] = useState(1);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const baseId = useId();
+
+  function onNameChange(value: string) {
+    setName(value);
+    const match = customers.find(
+      (c) => c.name.toLowerCase() === value.trim().toLowerCase(),
+    );
+    if (match) setPhone(match.phone);
+  }
 
   const amount = Math.max(qty, 0) * unitPrice;
 
@@ -56,11 +66,17 @@ export default function OrderForm({ mode, unitPrice, onAdd }: OrderFormProps) {
           <input
             id={`${baseId}-name`}
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => onNameChange(e.target.value)}
             placeholder="Maria Santos"
-            autoComplete="name"
+            autoComplete="off"
+            list={`${baseId}-customers`}
             className={`mt-1 ${field}`}
           />
+          <datalist id={`${baseId}-customers`}>
+            {customers.map((c) => (
+              <option key={c.phone} value={c.name} />
+            ))}
+          </datalist>
         </div>
         <div>
           <label htmlFor={`${baseId}-phone`} className="text-sm font-semibold text-ink">

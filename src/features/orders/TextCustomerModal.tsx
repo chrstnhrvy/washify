@@ -1,6 +1,6 @@
 import { useEffect, useId, useState } from "react";
-import { X, Send, Loader2, MessageSquareText, Facebook } from "lucide-react";
-import { sendSms, sendMessenger } from "../../lib/n8n";
+import { X, Send, Loader2, MessageSquareText, Facebook, Sparkles } from "lucide-react";
+import { sendSms, sendMessenger, draftMessage } from "../../lib/n8n";
 import MessengerPanel from "./MessengerPanel";
 import type { Order } from "./types";
 
@@ -9,6 +9,8 @@ type Channel = "sms" | "messenger";
 type TextCustomerModalProps = {
   order: Order;
   pageId: string | null;
+  /** Quantity unit for the AI draft (e.g. "loads" or "kg"). */
+  unit: string;
   onClose: () => void;
   onSent: () => void;
   /** Persist a newly entered PSID back onto the order. */
@@ -20,6 +22,7 @@ const LIMITS: Record<Channel, number> = { sms: 160, messenger: 2000 };
 export default function TextCustomerModal({
   order,
   pageId,
+  unit,
   onClose,
   onSent,
   onSavePsid,
@@ -31,6 +34,7 @@ export default function TextCustomerModal({
   const [psid, setPsid] = useState(order.messenger_psid ?? "");
   const [confirming, setConfirming] = useState(false);
   const [sending, setSending] = useState(false);
+  const [drafting, setDrafting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const titleId = useId();
 
@@ -41,6 +45,27 @@ export default function TextCustomerModal({
   }, [onClose]);
 
   const limit = LIMITS[channel];
+
+  async function handleDraft() {
+    setDrafting(true);
+    setError(null);
+    try {
+      const { message: drafted } = await draftMessage({
+        customerName: order.customer_name,
+        quantity: order.num_loads,
+        unit,
+        amount: Number(order.amount_due),
+        paid: order.paid,
+        channel,
+        maxChars: limit,
+      });
+      if (drafted) setMessage(drafted.slice(0, limit));
+    } catch {
+      setError("Couldn't draft a message. Edit it manually or try again.");
+    } finally {
+      setDrafting(false);
+    }
+  }
 
   async function send() {
     setSending(true);
@@ -123,9 +148,24 @@ export default function TextCustomerModal({
           />
         )}
 
-        <label htmlFor={`${titleId}-msg`} className="sr-only">
-          Message
-        </label>
+        <div className="mt-3 flex items-center justify-between">
+          <label htmlFor={`${titleId}-msg`} className="text-sm font-semibold text-ink">
+            Message
+          </label>
+          <button
+            type="button"
+            onClick={handleDraft}
+            disabled={drafting}
+            className="inline-flex min-h-[36px] items-center gap-1.5 rounded-lg bg-accent/20 px-3 text-sm font-semibold text-amber-700 transition-colors hover:bg-accent/30 disabled:opacity-50"
+          >
+            {drafting ? (
+              <Loader2 size={15} className="animate-spin" aria-hidden="true" />
+            ) : (
+              <Sparkles size={15} aria-hidden="true" />
+            )}
+            Draft with AI
+          </button>
+        </div>
         <textarea
           id={`${titleId}-msg`}
           value={message}

@@ -1,4 +1,4 @@
-import { Check, Circle, MessageSquareText } from "lucide-react";
+import { Check, Circle, MessageSquareText, Pencil, Printer, Trash2 } from "lucide-react";
 import StatusControl from "./StatusControl";
 import type { Order, OrderStatus } from "./types";
 import type { PricingMode } from "../settings/useShop";
@@ -10,9 +10,24 @@ type OrderRowProps = {
   onStatus: (id: string, status: OrderStatus) => void;
   onTogglePaid: (id: string, paid: boolean) => void;
   onText: (order: Order) => void;
+  onEdit: (order: Order) => void;
+  onReceipt: (order: Order) => void;
+  onDelete: (id: string) => void;
 };
 
-export default function OrderRow({ order, mode, onStatus, onTogglePaid, onText }: OrderRowProps) {
+const iconBtn =
+  "grid h-11 w-11 place-items-center rounded-xl text-muted transition-colors hover:bg-slate-100 hover:text-ink";
+
+export default function OrderRow({
+  order,
+  mode,
+  onStatus,
+  onTogglePaid,
+  onText,
+  onEdit,
+  onReceipt,
+  onDelete,
+}: OrderRowProps) {
   return (
     <li className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-surface p-5 shadow-card sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0">
@@ -63,6 +78,21 @@ export default function OrderRow({ order, mode, onStatus, onTogglePaid, onText }
           value={order.status}
           onChange={(s) => onStatus(order.id, s)}
         />
+
+        <button type="button" onClick={() => onEdit(order)} aria-label="Edit order" className={iconBtn}>
+          <Pencil size={16} aria-hidden="true" />
+        </button>
+        <button type="button" onClick={() => onReceipt(order)} aria-label="Print claim stub" className={iconBtn}>
+          <Printer size={16} aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          onClick={() => onDelete(order.id)}
+          aria-label="Delete order"
+          className="grid h-11 w-11 place-items-center rounded-xl text-muted transition-colors hover:bg-red-50 hover:text-red-600"
+        >
+          <Trash2 size={16} aria-hidden="true" />
+        </button>
       </div>
     </li>
   );

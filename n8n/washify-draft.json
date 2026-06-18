@@ -1,0 +1,121 @@
+{
+  "name": "washify-draft",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "draft-message",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "6c4454d2-4bbd-41c5-a584-f872d6c6b15b",
+      "name": "Webhook",
+      "webhookId": "fbbd37e7-a455-445e-9cee-ea069395e64f"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Write ONE short, friendly message telling a laundry customer their laundry is washed and ready for pickup.\n\nCustomer name: {{ $json.body.customerName }}\nQuantity: {{ $json.body.quantity }} {{ $json.body.unit }}\nAmount due: ₱{{ $json.body.amount }}\nAlready paid: {{ $json.body.paid }}\n\nRules:\n- Address them by name.\n- If \"Already paid\" is false, gently remind them to pay on pickup. If true, don't mention payment.\n- Keep it UNDER {{ $json.body.maxChars }} characters.\n- English or light Taglish is fine. Warm and concise.\n- Output ONLY the message text — no quotes, no labels, no explanation.\n",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        208,
+        0
+      ],
+      "id": "0504fe6c-4640-4d5b-b05a-823164384d69",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        144,
+        208
+      ],
+      "id": "67ed6654-15e7-4a1a-8aee-9ea4a2a14b6c",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "rDi23XwpJL2JJp0f",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ message: $json.text }) }}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        560,
+        0
+      ],
+      "id": "5853383b-f8b5-491e-b2bd-20ce2f8e6a9d",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "42b3abf0-84e4-4219-85c4-d4550ce2ea76",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "80be746b211140bbf0357ea70acec6b5b779be1b7e8cb07f9c8e07afca50513d"
+  },
+  "nodeGroups": [],
+  "id": "NBo8hFxOg3MFNJuI",
+  "tags": []
+}
