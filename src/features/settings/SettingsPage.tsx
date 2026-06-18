@@ -5,6 +5,7 @@ import type { AppOutletContext } from "../../app/app-context";
 import { supabase } from "../../lib/supabase";
 import PricingModeToggle from "./PricingModeToggle";
 import { priceLabel } from "./pricing";
+import DeleteAccountSection from "./DeleteAccountSection";
 import type { PricingMode } from "./useShop";
 
 export default function SettingsPage() {
@@ -142,6 +143,9 @@ export default function SettingsPage() {
           {saved ? "Saved" : "Save changes"}
         </button>
       </form>
+
+      {/* ---- Danger zone ---- */}
+      <DeleteAccountSection />
     </div>
   );
 }
