@@ -9,3 +9,7 @@ dist-ssr
 .DS_Store
 .vscode/*
 !.vscode/extensions.json
+
+# Local-only: installed Claude skills and project docs
+.claude/
+docs/
