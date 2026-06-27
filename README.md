@@ -39,15 +39,8 @@ paid subscriptions.
 
 ```bash
 npm install
-cp .env.example .env   # then fill in the values below
+cp .env.example .env   # then add your Supabase + n8n values
 npm run dev            # http://localhost:5173
-```
-
-`.env`:
-```
-VITE_N8N_BASE_URL=http://localhost:5678/webhook
-VITE_SUPABASE_URL=https://YOUR-PROJECT.supabase.co
-VITE_SUPABASE_ANON_KEY=YOUR-ANON-KEY
 ```
 
 Database setup: run the SQL in [supabase/schema.sql](supabase/schema.sql),
@@ -92,14 +85,3 @@ npm run build     # type-check + production build
 npm run lint      # type-check only
 npm run preview   # preview the production build
 ```
-
-## Deploy
-
-Push to GitHub, import the repo in **Vercel**, and add the `VITE_*` env vars.
-[vercel.json](vercel.json) handles SPA routing. Add your Vercel URL to Supabase's
-allowed redirect URLs, and host the n8n workflows somewhere public (e.g. Oracle
-Cloud Free) so the webhooks are reachable.
-
----
-
-Built as a portfolio project. Not affiliated with any real laundry business.
